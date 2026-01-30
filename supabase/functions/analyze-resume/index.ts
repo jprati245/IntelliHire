@@ -46,7 +46,8 @@ serve(async (req) => {
       });
     }
 
-    const { analysisId, extractedText } = await req.json();
+    const requestBody = await req.json();
+    const { analysisId, extractedText } = requestBody;
 
     if (!analysisId || !extractedText) {
       return new Response(JSON.stringify({ error: "Missing analysisId or extractedText" }), {
@@ -54,6 +55,8 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    
+    console.log("Processing analysis:", analysisId, "Text length:", extractedText?.length);
 
     // Use service role for updates
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
@@ -169,12 +172,51 @@ Respond ONLY with valid JSON in this exact format:
     }
 
     const aiData = await aiResponse.json();
+    console.log("AI response:", JSON.stringify(aiData, null, 2));
     
     let analysisResult;
+    
+    // Try to extract from tool_calls first
     if (aiData.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments) {
-      analysisResult = JSON.parse(aiData.choices[0].message.tool_calls[0].function.arguments);
+      try {
+        analysisResult = JSON.parse(aiData.choices[0].message.tool_calls[0].function.arguments);
+      } catch (parseError) {
+        console.error("Failed to parse tool_calls arguments:", parseError);
+        throw new Error("Failed to parse AI tool response");
+      }
+    } 
+    // Fallback: try to extract from content if it's JSON
+    else if (aiData.choices?.[0]?.message?.content) {
+      try {
+        const content = aiData.choices[0].message.content;
+        // Try to extract JSON from the content
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          analysisResult = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error("No JSON found in response content");
+        }
+      } catch (parseError) {
+        console.error("Failed to parse content as JSON:", parseError);
+        throw new Error("Invalid AI response format - no valid JSON found");
+      }
     } else {
-      throw new Error("Invalid AI response format");
+      console.error("Unexpected AI response structure:", aiData);
+      throw new Error("Invalid AI response format - missing expected fields");
+    }
+    
+    // Validate required fields
+    if (!analysisResult.technical_skills || !Array.isArray(analysisResult.technical_skills)) {
+      analysisResult.technical_skills = [];
+    }
+    if (!analysisResult.education_summary) {
+      analysisResult.education_summary = "Not specified";
+    }
+    if (!analysisResult.experience_summary) {
+      analysisResult.experience_summary = "Fresher";
+    }
+    if (typeof analysisResult.resume_score !== 'number') {
+      analysisResult.resume_score = 50;
     }
 
     // Update the analysis record
@@ -209,7 +251,8 @@ Respond ONLY with valid JSON in this exact format:
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error in analyze-resume:", error);
+    
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
