@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      resume_analyses: {
+        Row: {
+          analysis_status: string
+          created_at: string
+          education_summary: string | null
+          experience_summary: string | null
+          extracted_text: string | null
+          file_name: string
+          file_url: string
+          id: string
+          resume_score: number | null
+          technical_skills: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_status?: string
+          created_at?: string
+          education_summary?: string | null
+          experience_summary?: string | null
+          extracted_text?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          resume_score?: number | null
+          technical_skills?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_status?: string
+          created_at?: string
+          education_summary?: string | null
+          experience_summary?: string | null
+          extracted_text?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          resume_score?: number | null
+          technical_skills?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
