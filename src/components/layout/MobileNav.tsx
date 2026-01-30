@@ -1,11 +1,12 @@
 import { useLocation } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, User, Settings } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, FileText, User, Settings } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Assessments', url: '/assessments', icon: ClipboardList },
+  { title: 'Resume', url: '/resume-analysis', icon: FileText },
   { title: 'Profile', url: '/profile', icon: User },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];

@@ -6,7 +6,7 @@ import {
   ClipboardList,
   TrendingUp,
   LogOut,
-  ChevronLeft,
+  FileText,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,13 +23,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Assessments', url: '/assessments', icon: ClipboardList },
+  { title: 'Resume Analysis', url: '/resume-analysis', icon: FileText },
   { title: 'Progress', url: '/progress', icon: TrendingUp },
 ];
 

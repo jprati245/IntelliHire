@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Assessments from "./pages/Assessments";
 import Progress from "./pages/Progress";
+import ResumeAnalysis from "./pages/ResumeAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -70,6 +71,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Progress />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/resume-analysis"
+                element={
+                  <ProtectedRoute>
+                    <ResumeAnalysis />
                   </ProtectedRoute>
                 }
               />
