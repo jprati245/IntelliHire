@@ -59,7 +59,7 @@ export default function Landing() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <TrendingUp className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold text-foreground">CareerPath</span>
+            <span className="text-xl font-semibold text-foreground">IntelliHire</span>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -158,7 +158,7 @@ export default function Landing() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
             Join thousands of professionals who have discovered their ideal career path with
-            CareerPath.
+            IntelliHire.
           </p>
           <Button size="lg" className="mt-8" asChild>
             <Link to="/register">
@@ -177,10 +177,10 @@ export default function Landing() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <TrendingUp className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-foreground">CareerPath</span>
+              <span className="font-semibold text-foreground">IntelliHire</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} CareerPath. All rights reserved.
+              © {new Date().getFullYear()} IntelliHire. All rights reserved.
             </p>
           </div>
         </div>
