@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      mock_interviews: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          created_at: string
+          evaluations: Json
+          id: string
+          interview_type: string
+          job_role: string
+          overall_score: number
+          questions: Json
+          status: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          evaluations?: Json
+          id?: string
+          interview_type?: string
+          job_role: string
+          overall_score?: number
+          questions?: Json
+          status?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          evaluations?: Json
+          id?: string
+          interview_type?: string
+          job_role?: string
+          overall_score?: number
+          questions?: Json
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -47,6 +89,78 @@ export type Database = {
           job_title?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json
+          category: string
+          correct_answers: number
+          created_at: string
+          id: string
+          score: number
+          time_taken_seconds: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          category: string
+          correct_answers: number
+          created_at?: string
+          id?: string
+          score?: number
+          time_taken_seconds?: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          category?: string
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          score?: number
+          time_taken_seconds?: number
+          topic?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          category: string
+          correct_answer: number
+          created_at: string
+          difficulty: string
+          id: string
+          options: Json
+          question: string
+          topic: string
+        }
+        Insert: {
+          category: string
+          correct_answer: number
+          created_at?: string
+          difficulty?: string
+          id?: string
+          options?: Json
+          question: string
+          topic: string
+        }
+        Update: {
+          category?: string
+          correct_answer?: number
+          created_at?: string
+          difficulty?: string
+          id?: string
+          options?: Json
+          question?: string
+          topic?: string
         }
         Relationships: []
       }
@@ -95,6 +209,45 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_gap_analyses: {
+        Row: {
+          created_at: string
+          id: string
+          match_percentage: number
+          matching_skills: Json
+          missing_skills: Json
+          recommendations: Json
+          required_skills: Json
+          target_role: string
+          user_id: string
+          user_skills: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_percentage?: number
+          matching_skills?: Json
+          missing_skills?: Json
+          recommendations?: Json
+          required_skills?: Json
+          target_role: string
+          user_id: string
+          user_skills?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_percentage?: number
+          matching_skills?: Json
+          missing_skills?: Json
+          recommendations?: Json
+          required_skills?: Json
+          target_role?: string
+          user_id?: string
+          user_skills?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -112,6 +265,42 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_scores: {
+        Row: {
+          id: string
+          interview_score: number
+          interviews_taken: number
+          quiz_score: number
+          quizzes_taken: number
+          resume_score: number
+          total_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          interview_score?: number
+          interviews_taken?: number
+          quiz_score?: number
+          quizzes_taken?: number
+          resume_score?: number
+          total_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          interview_score?: number
+          interviews_taken?: number
+          quiz_score?: number
+          quizzes_taken?: number
+          resume_score?: number
+          total_score?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

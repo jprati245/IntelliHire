@@ -4,71 +4,113 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
-  ClipboardList,
+  Brain,
   Target,
   TrendingUp,
   Clock,
   ArrowRight,
   CheckCircle2,
   Star,
+  Briefcase,
+  Trophy,
+  FileText,
 } from 'lucide-react';
-
-const stats = [
-  {
-    title: 'Assessments Completed',
-    value: '0',
-    description: 'Get started with your first assessment',
-    icon: ClipboardList,
-    color: 'text-secondary',
-  },
-  {
-    title: 'Skills Identified',
-    value: '0',
-    description: 'Complete assessments to identify skills',
-    icon: Target,
-    color: 'text-success',
-  },
-  {
-    title: 'Career Matches',
-    value: '0',
-    description: 'Discover your ideal career paths',
-    icon: TrendingUp,
-    color: 'text-info',
-  },
-  {
-    title: 'Time Invested',
-    value: '0h',
-    description: 'Time spent on assessments',
-    icon: Clock,
-    color: 'text-warning',
-  },
-];
-
-const recommendedAssessments = [
-  {
-    title: 'Technical Skills Assessment',
-    description: 'Evaluate your proficiency in technical areas',
-    duration: '30 min',
-    difficulty: 'Intermediate',
-  },
-  {
-    title: 'Problem Solving Aptitude',
-    description: 'Test your analytical and logical thinking',
-    duration: '25 min',
-    difficulty: 'Advanced',
-  },
-  {
-    title: 'Communication Skills',
-    description: 'Assess your verbal and written communication',
-    duration: '20 min',
-    difficulty: 'Beginner',
-  },
-];
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Dashboard() {
-  const { profile } = useAuth();
-
+  const { user, profile } = useAuth();
   const firstName = profile?.display_name?.split(' ')[0] || 'there';
+
+  // Fetch user scores
+  const { data: userScore } = useQuery({
+    queryKey: ['user-score', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('user_scores')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch recent resume analysis
+  const { data: resumeAnalysis } = useQuery({
+    queryKey: ['latest-resume', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('resume_analyses')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('analysis_status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const stats = [
+    {
+      title: 'Quiz Score',
+      value: userScore?.quiz_score || 0,
+      description: userScore?.quizzes_taken ? `${userScore.quizzes_taken} quizzes taken` : 'Take a quiz to get started',
+      icon: Brain,
+      color: 'text-secondary',
+    },
+    {
+      title: 'Interview Score',
+      value: userScore?.interview_score || 0,
+      description: userScore?.interviews_taken ? `${userScore.interviews_taken} interviews` : 'Start a mock interview',
+      icon: Briefcase,
+      color: 'text-success',
+    },
+    {
+      title: 'Resume Score',
+      value: resumeAnalysis?.resume_score || 0,
+      description: resumeAnalysis ? 'ATS compatibility score' : 'Upload your resume',
+      icon: FileText,
+      color: 'text-info',
+    },
+    {
+      title: 'Total Score',
+      value: userScore?.total_score || 0,
+      description: 'Combined performance',
+      icon: Trophy,
+      color: 'text-warning',
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: 'Take a Quiz',
+      description: 'Test your CS fundamentals and aptitude',
+      href: '/quiz',
+      icon: Brain,
+    },
+    {
+      title: 'Mock Interview',
+      description: 'Practice with AI-powered interviews',
+      href: '/mock-interview',
+      icon: Briefcase,
+    },
+    {
+      title: 'Skill Gap Analysis',
+      description: 'Compare your skills with job requirements',
+      href: '/skill-gap',
+      icon: Target,
+    },
+    {
+      title: 'View Rankings',
+      description: 'See how you compare with others',
+      href: '/rankings',
+      icon: Trophy,
+    },
+  ];
 
   return (
     <AppLayout>
@@ -83,9 +125,11 @@ export default function Dashboard() {
               Track your progress and discover your career potential.
             </p>
           </div>
-          <Button className="w-full md:w-auto">
-            <ClipboardList className="mr-2 h-4 w-4" />
-            Start New Assessment
+          <Button className="w-full md:w-auto" asChild>
+            <Link to="/quiz">
+              <Brain className="mr-2 h-4 w-4" />
+              Start New Assessment
+            </Link>
           </Button>
         </div>
 
@@ -105,6 +149,27 @@ export default function Dashboard() {
                   {stat.description}
                 </p>
               </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickActions.map((action) => (
+            <Card key={action.title} className="hover:bg-muted/50 transition-colors">
+              <Link to={action.href}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <action.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{action.title}</CardTitle>
+                      <CardDescription className="text-xs">{action.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Link>
             </Card>
           ))}
         </div>
@@ -149,75 +214,70 @@ export default function Dashboard() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" asChild>
-                <a href="/profile">
+                <Link to="/profile">
                   Complete Profile
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Recommended Assessments */}
+          {/* Getting Started */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <ClipboardList className="h-5 w-5 text-secondary" />
-                Recommended Assessments
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Getting Started
               </CardTitle>
               <CardDescription>
-                Based on your profile and career goals
+                Recommended steps to maximize your career potential
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {recommendedAssessments.map((assessment, index) => (
-                <div
-                  key={index}
-                  className="flex items-start justify-between gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+              <div className="space-y-3">
+                <Link
+                  to="/resume-analysis"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
-                  <div className="space-y-1">
-                    <h4 className="font-medium">{assessment.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {assessment.description}
-                    </p>
-                    <div className="flex gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {assessment.duration}
-                      </span>
-                      <span>{assessment.difficulty}</span>
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="font-medium text-sm">Upload Resume</div>
+                      <div className="text-xs text-muted-foreground">Get your ATS score</div>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline">
-                    Start
-                  </Button>
-                </div>
-              ))}
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link
+                  to="/quiz"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Brain className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="font-medium text-sm">Take a Quiz</div>
+                      <div className="text-xs text-muted-foreground">Test your knowledge</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link
+                  to="/mock-interview"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="font-medium text-sm">Practice Interview</div>
+                      <div className="text-xs text-muted-foreground">AI-powered mock interviews</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Recent Activity - Placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Your latest assessment activity and results
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <ClipboardList className="h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-medium">No activity yet</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Start your first assessment to see your activity here.
-              </p>
-              <Button className="mt-4">
-                Browse Assessments
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AppLayout>
   );

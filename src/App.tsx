@@ -15,6 +15,10 @@ import Settings from "./pages/Settings";
 import Assessments from "./pages/Assessments";
 import Progress from "./pages/Progress";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
+import QuizModule from "./pages/QuizModule";
+import MockInterview from "./pages/MockInterview";
+import Rankings from "./pages/Rankings";
+import SkillGap from "./pages/SkillGap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +83,38 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <ResumeAnalysis />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/quiz"
+                element={
+                  <ProtectedRoute>
+                    <QuizModule />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mock-interview"
+                element={
+                  <ProtectedRoute>
+                    <MockInterview />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/rankings"
+                element={
+                  <ProtectedRoute>
+                    <Rankings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/skill-gap"
+                element={
+                  <ProtectedRoute>
+                    <SkillGap />
                   </ProtectedRoute>
                 }
               />
