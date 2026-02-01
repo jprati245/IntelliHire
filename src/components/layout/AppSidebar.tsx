@@ -66,7 +66,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-semibold text-sidebar-foreground">
-                CareerPath
+                IntelliHire
               </span>
               <span className="text-xs text-sidebar-foreground/70">
                 Assessment Platform

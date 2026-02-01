@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
-        name: "CareerPath - AI Career Assessment Platform",
-        short_name: "CareerPath",
+        name: "IntelliHire - AI Career Assessment Platform",
+        short_name: "IntelliHire",
         description: "Comprehensive career assessments to discover your skills and ideal career paths",
         theme_color: "#1a365d",
         background_color: "#f7fafc",
