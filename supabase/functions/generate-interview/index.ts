@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,20 +12,62 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { jobRole, interviewType, count = 5 } = await req.json();
+    
+    // Validate input
+    if (!jobRole || typeof jobRole !== 'string' || jobRole.length > 100) {
+      return new Response(JSON.stringify({ error: "Invalid job role" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    if (!interviewType || !['hr', 'technical'].includes(interviewType)) {
+      return new Response(JSON.stringify({ error: "Invalid interview type" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const safeCount = Math.min(Math.max(1, Number(count) || 5), 15);
+    const safeJobRole = jobRole.substring(0, 100);
+
     const typeDescription = interviewType === 'hr' 
       ? 'HR and behavioral interview questions focusing on soft skills, teamwork, problem-solving, and situational scenarios'
-      : `Technical interview questions for a ${jobRole} position covering coding concepts, system design, and role-specific technical knowledge`;
+      : `Technical interview questions for a ${safeJobRole} position covering coding concepts, system design, and role-specific technical knowledge`;
 
-    const systemPrompt = `You are an expert interviewer for tech companies. Generate realistic ${interviewType.toUpperCase()} interview questions for a ${jobRole} position.`;
+    const systemPrompt = `You are an expert interviewer for tech companies. Generate realistic ${interviewType.toUpperCase()} interview questions for a ${safeJobRole} position.`;
 
-    const userPrompt = `Generate ${count} ${typeDescription}. Each question should be challenging but fair, similar to what top tech companies ask.`;
+    const userPrompt = `Generate ${safeCount} ${typeDescription}. Each question should be challenging but fair, similar to what top tech companies ask.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -107,7 +150,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error generating interview:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "An error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

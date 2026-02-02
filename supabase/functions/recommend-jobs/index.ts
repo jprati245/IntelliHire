@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,40 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { skills, resumeScore, quizScore, interviewScore, preferences } = await req.json();
+    
+    // Validate and sanitize input
+    const safeSkills = Array.isArray(skills) 
+      ? skills.slice(0, 50).map((s: any) => String(s).substring(0, 100))
+      : [];
+    const safeResumeScore = Math.min(Math.max(0, Number(resumeScore) || 0), 100);
+    const safeQuizScore = Math.min(Math.max(0, Number(quizScore) || 0), 100);
+    const safeInterviewScore = Math.min(Math.max(0, Number(interviewScore) || 0), 100);
+    const safePreferences = typeof preferences === 'string' ? preferences.substring(0, 500) : "Open to all tech roles";
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -21,11 +55,11 @@ serve(async (req) => {
     const prompt = `Based on the following candidate profile, recommend the 6 most suitable job roles with relevance scores.
 
 **Candidate Profile:**
-- Technical Skills: ${skills?.join(", ") || "Not specified"}
-- Resume Score: ${resumeScore || 0}/100
-- Quiz Score: ${quizScore || 0}/100
-- Interview Score: ${interviewScore || 0}/100
-- Preferences: ${preferences || "Open to all tech roles"}
+- Technical Skills: ${safeSkills.join(", ") || "Not specified"}
+- Resume Score: ${safeResumeScore}/100
+- Quiz Score: ${safeQuizScore}/100
+- Interview Score: ${safeInterviewScore}/100
+- Preferences: ${safePreferences}
 
 **Requirements:**
 1. Analyze the skill set and scores to determine best-fit roles
@@ -98,7 +132,7 @@ Return a JSON object with this exact structure:
   } catch (error) {
     console.error("Job recommendation error:", error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : "Failed to generate recommendations",
+      error: "An error occurred",
       recommendations: []
     }), {
       status: 500,

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,7 +24,50 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { targetRole, userSkills } = await req.json();
+    
+    // Validate input
+    if (!targetRole || typeof targetRole !== 'string' || targetRole.length > 100) {
+      return new Response(JSON.stringify({ error: "Invalid target role" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    if (!Array.isArray(userSkills)) {
+      return new Response(JSON.stringify({ error: "Invalid user skills format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    // Sanitize inputs
+    const safeTargetRole = targetRole.substring(0, 100);
+    const safeUserSkills = userSkills.slice(0, 50).map((s: any) => String(s).substring(0, 100));
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -31,7 +75,7 @@ serve(async (req) => {
     }
 
     // Get required skills for the role (use predefined or generate via AI)
-    let requiredSkills = roleSkillsMap[targetRole];
+    let requiredSkills = roleSkillsMap[safeTargetRole];
     
     if (!requiredSkills) {
       // Generate required skills via AI for unknown roles
@@ -45,7 +89,7 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: "You are a tech industry expert. List the top 10-12 most important skills for a given job role." },
-            { role: "user", content: `List the essential skills for a ${targetRole} position in 2024.` }
+            { role: "user", content: `List the essential skills for a ${safeTargetRole} position in 2024.` }
           ],
           tools: [
             {
@@ -85,7 +129,7 @@ serve(async (req) => {
     }
 
     // Normalize skills for comparison
-    const normalizedUserSkills = userSkills.map((s: string) => s.toLowerCase().trim());
+    const normalizedUserSkills = safeUserSkills.map((s: string) => s.toLowerCase().trim());
     const normalizedRequiredSkills = requiredSkills.map(s => s.toLowerCase().trim());
 
     // Find matching and missing skills
@@ -114,7 +158,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: "You are a career coach specializing in tech careers. Provide actionable learning recommendations." },
-          { role: "user", content: `For someone aiming to be a ${targetRole}, suggest learning resources and priorities for these missing skills: ${missingSkills.join(", ")}` }
+          { role: "user", content: `For someone aiming to be a ${safeTargetRole}, suggest learning resources and priorities for these missing skills: ${missingSkills.join(", ")}` }
         ],
         tools: [
           {
@@ -158,9 +202,9 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({
-      targetRole,
+      targetRole: safeTargetRole,
       requiredSkills,
-      userSkills,
+      userSkills: safeUserSkills,
       matchingSkills,
       missingSkills,
       matchPercentage,
@@ -170,7 +214,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error analyzing skill gap:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "An error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
