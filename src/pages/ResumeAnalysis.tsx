@@ -86,12 +86,10 @@ export default function ResumeAnalysisPage() {
     try {
       const analysis = analyses.find((a) => a.id === id);
       
-      // Delete from storage
+      // Delete from storage using file path (not URL)
       if (analysis?.file_url) {
-        const path = analysis.file_url.split('/resumes/')[1];
-        if (path) {
-          await supabase.storage.from('resumes').remove([path]);
-        }
+        // file_url now stores the path directly (e.g., "user-id/timestamp-filename.pdf")
+        await supabase.storage.from('resumes').remove([analysis.file_url]);
       }
 
       // Delete from database
