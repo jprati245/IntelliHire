@@ -35,6 +35,7 @@ const mainNavItems = [
   { title: 'Resume Analysis', url: '/resume-analysis', icon: FileText },
   { title: 'Quiz Module', url: '/quiz', icon: Brain },
   { title: 'Mock Interview', url: '/mock-interview', icon: Briefcase },
+  { title: 'Job Recommendations', url: '/jobs', icon: Briefcase },
   { title: 'Skill Gap', url: '/skill-gap', icon: Target },
   { title: 'Rankings', url: '/rankings', icon: Trophy },
 ];

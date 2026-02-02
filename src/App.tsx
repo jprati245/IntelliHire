@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CareerAssistant } from "@/components/chat/CareerAssistant";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -19,9 +20,18 @@ import QuizModule from "./pages/QuizModule";
 import MockInterview from "./pages/MockInterview";
 import Rankings from "./pages/Rankings";
 import SkillGap from "./pages/SkillGap";
+import Jobs from "./pages/Jobs";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -118,10 +128,20 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/jobs"
+                element={
+                  <ProtectedRoute>
+                    <Jobs />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            {/* Global Career Assistant - available on all protected routes */}
+            <CareerAssistant />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
