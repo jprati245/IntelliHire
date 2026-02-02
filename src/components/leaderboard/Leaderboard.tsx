@@ -90,7 +90,7 @@ export function Leaderboard({ scores, currentUserId }: LeaderboardProps) {
                     </div>
                     <div>
                       <div className="font-medium">
-                        {isCurrentUser ? 'You' : `User #${score.user_id.slice(0, 4).toUpperCase()}`}
+                        {isCurrentUser ? 'You' : `Candidate #${rank}`}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {score.quizzes_taken} quizzes • {score.interviews_taken} interviews
