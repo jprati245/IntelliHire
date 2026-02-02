@@ -59,17 +59,13 @@ export function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('resumes')
-        .getPublicUrl(fileName);
-
-      // Create analysis record
+      // Store the file path (not public URL) since bucket is private
+      // Signed URLs will be generated when viewing the resume
       const { data: analysisRecord, error: insertError } = await supabase
         .from('resume_analyses')
         .insert({
           user_id: user.id,
-          file_url: urlData.publicUrl,
+          file_url: fileName, // Store path, not public URL
           file_name: selectedFile.name,
           analysis_status: 'pending',
         })
