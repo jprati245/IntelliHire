@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.analyze-skill-gap]
 verify_jwt = false
+
+[functions.career-chat]
+verify_jwt = false
+
+[functions.recommend-jobs]
+verify_jwt = false
