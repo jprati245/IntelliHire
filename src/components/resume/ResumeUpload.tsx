@@ -113,17 +113,43 @@ export function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
     }
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  // Validate PDF magic bytes to ensure file is genuine PDF
+  const isPdfFile = async (file: File): Promise<boolean> => {
+    const buffer = await file.slice(0, 5).arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    // PDF files start with %PDF- (0x25 0x50 0x44 0x46 0x2D)
+    return bytes[0] === 0x25 && 
+           bytes[1] === 0x50 && 
+           bytes[2] === 0x44 && 
+           bytes[3] === 0x46 && 
+           bytes[4] === 0x2D;
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    if (file && file.type === 'application/pdf') {
-      setSelectedFile(file);
-    } else {
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
       toast({
         title: 'Invalid File',
         description: 'Please upload a PDF file.',
         variant: 'destructive',
       });
+      return;
     }
+
+    // Verify actual file content is PDF
+    const isValidPdf = await isPdfFile(file);
+    if (!isValidPdf) {
+      toast({
+        title: 'Invalid File',
+        description: 'The file does not appear to be a valid PDF. Please upload a genuine PDF document.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSelectedFile(file);
   }, [toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
