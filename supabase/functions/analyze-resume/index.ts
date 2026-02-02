@@ -7,6 +7,27 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Sanitize text to prevent prompt injection and remove malicious content
+function sanitizeText(text: string): string {
+  if (typeof text !== 'string') return '';
+  
+  // Remove null bytes and control characters (except newlines and tabs)
+  let cleaned = text.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+  
+  // Remove potential prompt injection patterns
+  cleaned = cleaned.replace(/system:|assistant:|user:|<\|im_start\|>|<\|im_end\|>/gi, '');
+  
+  // Remove script tags and javascript protocol
+  cleaned = cleaned.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+  cleaned = cleaned.replace(/javascript:/gi, '');
+  cleaned = cleaned.replace(/data:text\/html/gi, '');
+  
+  // Limit length server-side
+  cleaned = cleaned.substring(0, 10000);
+  
+  return cleaned.trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -56,7 +77,18 @@ serve(async (req) => {
       });
     }
     
-    console.log("Processing analysis:", analysisId, "Text length:", extractedText?.length);
+    // Sanitize the extracted text to prevent injection attacks
+    const sanitizedText = sanitizeText(extractedText);
+    
+    // Validate sanitized text length
+    if (sanitizedText.length < 50) {
+      return new Response(JSON.stringify({ error: "Resume content too short after processing" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    console.log("Processing analysis:", analysisId, "Sanitized text length:", sanitizedText.length);
 
     // Use service role for updates
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
@@ -100,7 +132,7 @@ Respond ONLY with valid JSON in this exact format:
           },
           {
             role: "user",
-            content: `Analyze this resume:\n\n${extractedText.substring(0, 8000)}`,
+            content: `Analyze this resume:\n\n${sanitizedText}`,
           },
         ],
         tools: [

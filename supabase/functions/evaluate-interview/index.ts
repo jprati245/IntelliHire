@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,23 +12,72 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { questions, answers, jobRole, interviewType } = await req.json();
+    
+    // Validate input
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid questions format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    if (!Array.isArray(answers)) {
+      return new Response(JSON.stringify({ error: "Invalid answers format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    if (!jobRole || typeof jobRole !== 'string' || jobRole.length > 100) {
+      return new Response(JSON.stringify({ error: "Invalid job role" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Format Q&A pairs for evaluation
-    const qaPairs = questions.map((q: any, i: number) => ({
-      question: q.question,
-      expectedTopics: q.expectedTopics,
-      answer: answers[i] || "No answer provided"
+    const safeJobRole = jobRole.substring(0, 100);
+    const safeInterviewType = ['hr', 'technical'].includes(interviewType) ? interviewType : 'general';
+
+    // Format Q&A pairs for evaluation with sanitized data
+    const qaPairs = questions.slice(0, 20).map((q: any, i: number) => ({
+      question: String(q.question || '').substring(0, 500),
+      expectedTopics: Array.isArray(q.expectedTopics) ? q.expectedTopics.slice(0, 10).map((t: any) => String(t).substring(0, 100)) : [],
+      answer: String(answers[i] || "No answer provided").substring(0, 2000)
     }));
 
-    const systemPrompt = `You are an expert interview evaluator for ${jobRole} positions. Evaluate each answer objectively based on completeness, accuracy, communication clarity, and relevance. Score each answer from 0-100.`;
+    const systemPrompt = `You are an expert interview evaluator for ${safeJobRole} positions. Evaluate each answer objectively based on completeness, accuracy, communication clarity, and relevance. Score each answer from 0-100.`;
 
-    const userPrompt = `Evaluate these ${interviewType} interview answers:\n\n${JSON.stringify(qaPairs, null, 2)}`;
+    const userPrompt = `Evaluate these ${safeInterviewType} interview answers:\n\n${JSON.stringify(qaPairs, null, 2)}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -133,7 +183,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error evaluating interview:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "An error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

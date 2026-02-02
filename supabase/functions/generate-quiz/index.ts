@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,19 +12,56 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { category, topic, count = 5, difficulty } = await req.json();
+    
+    // Validate input
+    if (!category || typeof category !== 'string' || category.length > 100) {
+      return new Response(JSON.stringify({ error: "Invalid category" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const difficultyText = difficulty ? ` at ${difficulty} difficulty level` : '';
-    const topicText = topic ? ` focusing on ${topic}` : '';
-    
-    const systemPrompt = `You are a quiz question generator for technical assessments. Generate exactly ${count} multiple-choice questions about ${category}${topicText}${difficultyText}. Each question should have exactly 4 options with only one correct answer.`;
+    const safeCount = Math.min(Math.max(1, Number(count) || 5), 20);
+    const safeCategory = category.substring(0, 100);
+    const safeTopic = topic ? String(topic).substring(0, 100) : '';
+    const safeDifficulty = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
 
-    const userPrompt = `Generate ${count} MCQ questions for ${category}${topicText}${difficultyText}. Return valid JSON only.`;
+    const difficultyText = safeDifficulty ? ` at ${safeDifficulty} difficulty level` : '';
+    const topicText = safeTopic ? ` focusing on ${safeTopic}` : '';
+    
+    const systemPrompt = `You are a quiz question generator for technical assessments. Generate exactly ${safeCount} multiple-choice questions about ${safeCategory}${topicText}${difficultyText}. Each question should have exactly 4 options with only one correct answer.`;
+
+    const userPrompt = `Generate ${safeCount} MCQ questions for ${safeCategory}${topicText}${difficultyText}. Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -107,7 +145,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error generating quiz:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "An error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
