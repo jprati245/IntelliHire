@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      jobs: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          experience_level: string
+          id: string
+          location: string | null
+          required_skills: Json
+          salary_range: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          experience_level?: string
+          id?: string
+          location?: string | null
+          required_skills?: Json
+          salary_range?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          experience_level?: string
+          id?: string
+          location?: string | null
+          required_skills?: Json
+          salary_range?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mock_interviews: {
         Row: {
           answers: Json
