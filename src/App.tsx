@@ -144,6 +144,14 @@ const App = () => (
                 }
               />
 
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+              <Route path="/admin/resumes" element={<AdminRoute><AdminResumes /></AdminRoute>} />
+              <Route path="/admin/jobs" element={<AdminRoute><AdminJobs /></AdminRoute>} />
+              <Route path="/admin/quizzes" element={<AdminRoute><AdminQuizzes /></AdminRoute>} />
+              <Route path="/admin/analytics" element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
+
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
