@@ -32,6 +32,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <SidebarTrigger className="md:hidden" />
+      <BackButton />
 
       {/* Search - hidden on mobile */}
       <div className="hidden flex-1 md:flex md:max-w-sm">
