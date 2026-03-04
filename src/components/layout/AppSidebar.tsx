@@ -9,7 +9,6 @@ import {
   FileText,
   Brain,
   Briefcase,
-  Trophy,
   Target,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -34,10 +33,8 @@ const mainNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Resume Analysis', url: '/resume-analysis', icon: FileText },
   { title: 'Quiz Module', url: '/quiz', icon: Brain },
-  { title: 'Mock Interview', url: '/mock-interview', icon: Briefcase },
   { title: 'Job Recommendations', url: '/jobs', icon: Briefcase },
   { title: 'Skill Gap', url: '/skill-gap', icon: Target },
-  { title: 'Rankings', url: '/rankings', icon: Trophy },
 ];
 
 const accountNavItems = [

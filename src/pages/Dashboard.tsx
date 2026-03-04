@@ -93,22 +93,10 @@ export default function Dashboard() {
       icon: Brain,
     },
     {
-      title: 'Mock Interview',
-      description: 'Practice with AI-powered interviews',
-      href: '/mock-interview',
-      icon: Briefcase,
-    },
-    {
       title: 'Skill Gap Analysis',
       description: 'Compare your skills with job requirements',
       href: '/skill-gap',
       icon: Target,
-    },
-    {
-      title: 'View Rankings',
-      description: 'See how you compare with others',
-      href: '/rankings',
-      icon: Trophy,
     },
   ];
 
@@ -257,19 +245,6 @@ export default function Dashboard() {
                     <div>
                       <div className="font-medium text-sm">Take a Quiz</div>
                       <div className="text-xs text-muted-foreground">Test your knowledge</div>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-                <Link
-                  to="/mock-interview"
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Briefcase className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium text-sm">Practice Interview</div>
-                      <div className="text-xs text-muted-foreground">AI-powered mock interviews</div>
                     </div>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
