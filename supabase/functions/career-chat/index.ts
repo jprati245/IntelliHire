@@ -62,6 +62,26 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Sanitize messages: limit count, enforce allowed roles, cap content length
+    const MAX_MESSAGES = 20;
+    const MAX_CONTENT_LENGTH = 4000;
+    const ALLOWED_ROLES = new Set(["user", "assistant"]);
+
+    const safeMessages = messages
+      .slice(0, MAX_MESSAGES)
+      .filter((m: any) => m && typeof m === "object" && ALLOWED_ROLES.has(m.role))
+      .map((m: any) => ({
+        role: m.role as string,
+        content: String(m.content ?? "").substring(0, MAX_CONTENT_LENGTH),
+      }));
+
+    if (safeMessages.length === 0) {
+      return new Response(JSON.stringify({ error: "No valid messages provided" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -79,7 +99,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages,
+          ...safeMessages,
         ],
         stream: true,
       }),
