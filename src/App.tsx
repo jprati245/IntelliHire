@@ -103,22 +103,6 @@ const App = () => (
                 }
               />
               <Route
-                path="/mock-interview"
-                element={
-                  <ProtectedRoute>
-                    <MockInterview />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/rankings"
-                element={
-                  <ProtectedRoute>
-                    <Rankings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/skill-gap"
                 element={
                   <ProtectedRoute>
