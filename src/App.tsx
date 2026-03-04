@@ -17,8 +17,6 @@ import Assessments from "./pages/Assessments";
 import Progress from "./pages/Progress";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
 import QuizModule from "./pages/QuizModule";
-import MockInterview from "./pages/MockInterview";
-import Rankings from "./pages/Rankings";
 import SkillGap from "./pages/SkillGap";
 import Jobs from "./pages/Jobs";
 import NotFound from "./pages/NotFound";
