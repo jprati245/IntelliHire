@@ -36,7 +36,6 @@ const mainNavItems = [
   { title: 'Job Recommendations', url: '/jobs', icon: Briefcase },
   { title: 'Skill Gap', url: '/skill-gap', icon: Target },
 ];
-];
 
 const accountNavItems = [
   { title: 'Profile', url: '/profile', icon: User },
