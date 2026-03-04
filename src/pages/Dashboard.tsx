@@ -250,7 +250,6 @@ export default function Dashboard() {
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </Link>
               </div>
-              </div>
             </CardContent>
           </Card>
         </div>

@@ -10,6 +10,7 @@ import {
   Brain,
   Briefcase,
   Target,
+} from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
