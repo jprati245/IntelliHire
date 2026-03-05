@@ -92,46 +92,66 @@ export default function AdminJobs() {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Jobs Management</h1>
-          <Button onClick={openCreate} size="sm">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Jobs Management</h1>
+            <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Create, edit, and manage job listings</p>
+          </div>
+          <Button
+            onClick={openCreate}
+            size="sm"
+            className="border-none text-white"
+            style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)' }}
+          >
             <Plus className="mr-1 h-4 w-4" /> Add Job
           </Button>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#ef4444' }} />
           </div>
         ) : (
-          <div className="rounded-lg border border-border">
+          <div className="rounded-xl overflow-hidden" style={{ background: '#161821', border: '1px solid #2a2d3a' }}>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Posted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow style={{ borderBottom: '1px solid #2a2d3a' }}>
+                  <TableHead style={{ color: '#9ca3af' }}>Title</TableHead>
+                  <TableHead style={{ color: '#9ca3af' }}>Company</TableHead>
+                  <TableHead style={{ color: '#9ca3af' }}>Location</TableHead>
+                  <TableHead style={{ color: '#9ca3af' }}>Posted</TableHead>
+                  <TableHead className="text-right" style={{ color: '#9ca3af' }}>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {jobs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">No jobs found</TableCell>
+                    <TableCell colSpan={5} className="text-center" style={{ color: '#6b7280' }}>No jobs found</TableCell>
                   </TableRow>
                 ) : (
                   jobs.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-medium">{job.title}</TableCell>
-                      <TableCell>{job.company || '—'}</TableCell>
-                      <TableCell>{job.location || '—'}</TableCell>
-                      <TableCell>{format(new Date(job.created_at), 'MMM d, yyyy')}</TableCell>
+                    <TableRow key={job.id} style={{ borderBottom: '1px solid #1f2233' }}>
+                      <TableCell className="font-medium text-white">{job.title}</TableCell>
+                      <TableCell style={{ color: '#9ca3af' }}>{job.company || '—'}</TableCell>
+                      <TableCell style={{ color: '#9ca3af' }}>{job.location || '—'}</TableCell>
+                      <TableCell style={{ color: '#9ca3af' }}>{format(new Date(job.created_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(job)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEdit(job)}
+                          className="hover:bg-white/10"
+                          style={{ color: '#9ca3af' }}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(job.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(job.id)}
+                          className="hover:bg-red-500/10"
+                          style={{ color: '#ef4444' }}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -144,19 +164,19 @@ export default function AdminJobs() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent style={{ background: '#161821', border: '1px solid #2a2d3a' }}>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit Job' : 'Add Job'}</DialogTitle>
+            <DialogTitle className="text-white">{editingId ? 'Edit Job' : 'Add Job'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input placeholder="Job Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-            <Input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
-            <Input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-            <Textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} />
+            <Input placeholder="Job Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="border-[#2a2d3a] bg-[#0f1117] text-white placeholder:text-[#6b7280]" />
+            <Input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className="border-[#2a2d3a] bg-[#0f1117] text-white placeholder:text-[#6b7280]" />
+            <Input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="border-[#2a2d3a] bg-[#0f1117] text-white placeholder:text-[#6b7280]" />
+            <Textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="border-[#2a2d3a] bg-[#0f1117] text-white placeholder:text-[#6b7280]" />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="border-[#2a2d3a] text-white hover:bg-white/10">Cancel</Button>
+            <Button onClick={handleSave} disabled={saving} className="border-none text-white" style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)' }}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editingId ? 'Update' : 'Create'}
             </Button>
