@@ -123,6 +123,12 @@ const App = () => (
                 }
               />
 
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+              <Route path="/admin/jobs" element={<AdminRoute><AdminJobs /></AdminRoute>} />
+
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
