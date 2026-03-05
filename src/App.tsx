@@ -21,6 +21,9 @@ import QuizModule from "./pages/QuizModule";
 import SkillGap from "./pages/SkillGap";
 import Jobs from "./pages/Jobs";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminJobs from "./pages/admin/AdminJobs";
 
 const queryClient = new QueryClient({
   defaultOptions: {
