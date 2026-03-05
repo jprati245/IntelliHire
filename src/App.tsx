@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { CareerAssistant } from "@/components/chat/CareerAssistant";
+import { AdminRoute } from "@/components/admin/AdminRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -20,6 +21,9 @@ import QuizModule from "./pages/QuizModule";
 import SkillGap from "./pages/SkillGap";
 import Jobs from "./pages/Jobs";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminJobs from "./pages/admin/AdminJobs";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +122,12 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+              <Route path="/admin/jobs" element={<AdminRoute><AdminJobs /></AdminRoute>} />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
