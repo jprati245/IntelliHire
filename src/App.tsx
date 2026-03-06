@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminJobs from "./pages/admin/AdminJobs";
+import AdminQuizzes from "./pages/admin/AdminQuizzes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
               <Route path="/admin/jobs" element={<AdminRoute><AdminJobs /></AdminRoute>} />
+              <Route path="/admin/quizzes" element={<AdminRoute><AdminQuizzes /></AdminRoute>} />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
