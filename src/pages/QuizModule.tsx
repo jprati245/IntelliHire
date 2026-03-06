@@ -84,11 +84,11 @@ export default function QuizModule() {
         query = query.eq('difficulty', selectedDifficulty);
       }
       
-      const { data: dbQuestions } = await query.limit(10);
+      const { data: dbQuestions } = await query.limit(40);
       
-      if (dbQuestions && dbQuestions.length >= 5) {
-        // Shuffle and return database questions
-        const shuffled = dbQuestions.sort(() => Math.random() - 0.5).slice(0, 5);
+      if (dbQuestions && dbQuestions.length >= 20) {
+        // Shuffle and return 20 database questions
+        const shuffled = dbQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
         return shuffled.map(q => ({
           question: q.question,
           options: q.options as string[],
@@ -101,7 +101,7 @@ export default function QuizModule() {
         body: {
           category: selectedCategory,
           topic: selectedTopic !== 'mixed' ? selectedTopic : undefined,
-          count: 5,
+          count: 20,
           difficulty: selectedDifficulty,
         },
       });
