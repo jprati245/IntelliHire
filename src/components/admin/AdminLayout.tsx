@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Briefcase, LogOut, Shield, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Briefcase, HelpCircle, LogOut, Shield, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ const navItems = [
   { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Jobs', url: '/admin/jobs', icon: Briefcase },
+  { title: 'Quiz Management', url: '/admin/quizzes', icon: HelpCircle },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
