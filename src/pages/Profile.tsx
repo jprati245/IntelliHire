@@ -245,7 +245,7 @@ export default function Profile() {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="Enter Your Name Here" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

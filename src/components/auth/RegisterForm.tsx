@@ -111,7 +111,7 @@ export function RegisterForm() {
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="John Doe"
+                      placeholder="Enter Your Name Here"
                       className="pl-10"
                       {...field}
                     />
@@ -132,7 +132,7 @@ export function RegisterForm() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="you@example.com"
+                      placeholder="Enter Your Email Here"
                       className="pl-10"
                       {...field}
                     />
