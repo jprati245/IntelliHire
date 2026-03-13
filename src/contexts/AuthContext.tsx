@@ -61,11 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
-            setLoading(false);
           }, 0);
         } else {
           setProfile(null);
-          setLoading(false);
         }
       }
     );

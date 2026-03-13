@@ -8,7 +8,10 @@ export function useAdminRole() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
 
     if (!user) {
       setIsAdmin(false);
@@ -16,7 +19,11 @@ export function useAdminRole() {
       return;
     }
 
+    let isCancelled = false;
+
     const checkAdmin = async () => {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -24,12 +31,18 @@ export function useAdminRole() {
         .eq('role', 'admin')
         .maybeSingle();
 
+      if (isCancelled) return;
+
       setIsAdmin(!error && !!data);
       setLoading(false);
     };
 
     checkAdmin();
-  }, [user, authLoading]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user?.id, authLoading]);
 
   return { isAdmin, loading };
 }
