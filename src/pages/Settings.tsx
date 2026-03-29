@@ -322,8 +322,9 @@ export default function Settings() {
                     <AlertDialogAction
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       onClick={handleDeleteAccount}
+                      disabled={deleting}
                     >
-                      Delete Account
+                      {deleting ? 'Deleting...' : 'Delete Account'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
