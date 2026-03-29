@@ -288,20 +288,6 @@ export function RegisterForm() {
         Continue with Google
       </Button>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => {
-          toast({
-            title: 'Mobile sign-up',
-            description: 'Please use the login page to sign in with your mobile number. Your account will be created automatically.',
-          });
-        }}
-        disabled={isLoading}
-      >
-        <Phone className="mr-2 h-4 w-4" />
-        Continue with Mobile
-      </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}

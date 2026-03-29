@@ -153,8 +153,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signIn,
         signInWithGoogle,
-        signInWithPhone,
-        verifyOtp,
         signOut,
         updateProfile,
         refreshProfile,
