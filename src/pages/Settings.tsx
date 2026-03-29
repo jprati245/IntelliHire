@@ -46,11 +46,41 @@ export default function Settings() {
     navigate('/login');
   };
 
-  const handleDeleteAccount = () => {
-    toast({
-      title: 'Account deletion requested',
-      description: 'This feature is coming soon. Please contact support for assistance.',
-    });
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const { data: { session } } = await (await import('@/integrations/supabase/client')).supabase.auth.getSession();
+      if (!session) {
+        toast({ title: 'Error', description: 'You must be logged in.', variant: 'destructive' });
+        return;
+      }
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete account');
+      }
+      await signOut();
+      navigate('/');
+    } catch (err: any) {
+      toast({
+        title: 'Failed to delete account',
+        description: err.message || 'Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
