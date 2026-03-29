@@ -3,11 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import {
   Form,
   FormControl,
@@ -25,16 +24,10 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-type AuthMode = 'email' | 'phone';
-
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>('email');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpValue, setOtpValue] = useState('');
-  const { signIn, signInWithGoogle, signInWithPhone, verifyOtp } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -54,58 +47,6 @@ export function LoginForm() {
     if (error) {
       toast({
         title: 'Login failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      navigate('/dashboard');
-    }
-  };
-
-  const handleSendOtp = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
-      toast({
-        title: 'Invalid phone number',
-        description: 'Please enter a valid phone number with country code (e.g., +91XXXXXXXXXX)',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsLoading(true);
-    const { error } = await signInWithPhone(phoneNumber);
-    setIsLoading(false);
-
-    if (error) {
-      toast({
-        title: 'Failed to send OTP',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      setOtpSent(true);
-      toast({
-        title: 'OTP sent!',
-        description: 'Check your phone for the verification code.',
-      });
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otpValue.length !== 6) {
-      toast({
-        title: 'Invalid OTP',
-        description: 'Please enter the 6-digit code.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsLoading(true);
-    const { error } = await verifyOtp(phoneNumber, otpValue);
-    setIsLoading(false);
-
-    if (error) {
-      toast({
-        title: 'Verification failed',
         description: error.message,
         variant: 'destructive',
       });
@@ -139,183 +80,74 @@ export function LoginForm() {
         </p>
       </div>
 
-      {/* Auth mode toggle */}
-      <div className="flex rounded-lg border bg-muted/30 p-1">
-        <button
-          type="button"
-          onClick={() => { setAuthMode('email'); setOtpSent(false); }}
-          className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-            authMode === 'email'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Mail className="inline-block mr-1.5 h-4 w-4" />
-          Email
-        </button>
-        <button
-          type="button"
-          onClick={() => setAuthMode('phone')}
-          className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-            authMode === 'phone'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Phone className="inline-block mr-1.5 h-4 w-4" />
-          Mobile
-        </button>
-      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Enter Your Email Here"
+                      className="pl-10"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      {authMode === 'email' ? (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Enter Your Email Here"
-                        className="pl-10"
-                        {...field}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        className="pl-10 pr-10"
-                        {...field}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign in'
-              )}
-            </Button>
-          </form>
-        </Form>
-      ) : (
-        <div className="space-y-4">
-          {!otpSent ? (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mobile Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="tel"
-                    placeholder="+91XXXXXXXXXX"
-                    className="pl-10"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Include country code (e.g., +91 for India)
-                </p>
-              </div>
-              <Button
-                className="w-full"
-                onClick={handleSendOtp}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending OTP...
-                  </>
-                ) : (
-                  'Send OTP'
-                )}
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Enter OTP</label>
-                <p className="text-xs text-muted-foreground">
-                  Enter the 6-digit code sent to {phoneNumber}
-                </p>
-                <div className="flex justify-center">
-                  <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue}>
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-              </div>
-              <Button
-                className="w-full"
-                onClick={handleVerifyOtp}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify & Sign In'
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => { setOtpSent(false); setOtpValue(''); }}
-              >
-                Change number
-              </Button>
-            </>
-          )}
-        </div>
-      )}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
+          </Button>
+        </form>
+      </Form>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
