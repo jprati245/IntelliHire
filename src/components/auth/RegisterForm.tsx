@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Mail, Lock, User, Eye, EyeOff, Phone } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -288,20 +288,6 @@ export function RegisterForm() {
         Continue with Google
       </Button>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => {
-          toast({
-            title: 'Mobile sign-up',
-            description: 'Please use the login page to sign in with your mobile number. Your account will be created automatically.',
-          });
-        }}
-        disabled={isLoading}
-      >
-        <Phone className="mr-2 h-4 w-4" />
-        Continue with Mobile
-      </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}
