@@ -17,7 +17,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/10 backdrop-blur">
               <TrendingUp className="h-5 w-5" />
             </div>
-            <span className="text-xl font-semibold">CareerPath</span>
+            <span className="text-xl font-semibold">IntelliHire</span>
           </div>
 
           {/* Hero Content */}
@@ -56,7 +56,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
           {/* Footer */}
           <div className="text-sm text-primary-foreground/60">
-            © 2024 CareerPath. All rights reserved.
+            © 2024 IntelliHire. All rights reserved.
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <TrendingUp className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-semibold text-primary-foreground">
-            CareerPath
+            IntelliHire
           </span>
         </div>
 
